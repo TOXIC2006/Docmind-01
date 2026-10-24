@@ -1,0 +1,28 @@
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: dock-mind-postgres
+    restart: unless-stopped
+
+    ports:
+      - "5434:5432"
+
+    environment:
+      POSTGRES_DB: ${DB_NAME:-docmind}
+      POSTGRES_USER: ${DB_USER:-root}
+      # Reads DB_PASSWORD from src/main/resources/.env (gitignored) or your shell.
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in src/main/resources/.env}
+
+    volumes:
+      - ytpdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d docmind"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  ytpdata:
