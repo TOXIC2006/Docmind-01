@@ -2,6 +2,7 @@ package com.lcdw.springai.docmind01.Service;
 
 import com.lcdw.springai.docmind01.Execption.Document_EXE;
 import io.micrometer.common.lang.Nullable;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.ExtractedTextFormatter;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 @Service
 public class ParseService {
     public List<Document> parse(MultipartFile file) {
@@ -42,6 +44,7 @@ public class ParseService {
              }
 
          } catch (Exception e) {
+             log.error("failed to parse file: {}", fileName, e);
              throw new Document_EXE("failed to parse file: " + fileName, e);
          }
     }

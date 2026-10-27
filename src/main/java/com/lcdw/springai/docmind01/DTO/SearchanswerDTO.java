@@ -1,0 +1,18 @@
+package com.lcdw.springai.docmind01.DTO;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class SearchanswerDTO {
+
+     private  String  query;
+     private  int totalmatches;
+     List<CitationDto> matches;
+}
