@@ -2,6 +2,7 @@ package com.lcdw.springai.docmind01.Confi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lcdw.springai.docmind01.Execption.API_Respone;
+import com.lcdw.springai.docmind01.Service.Security.JwtAuthenticationFilter;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,7 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/error"
-    };  
+    };
 
     private final Appproperties appproperties;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
