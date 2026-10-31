@@ -21,18 +21,39 @@ spring:
       hibernate:
         format_sql: true
 
+  # Needed for the registration verification email. Without spring.mail.host no JavaMailSender
+  # bean is created, and /docmind/auth/register fails with a message saying so.
+  # Gmail example: host smtp.gmail.com, port 587, and an *app password* - not your normal one.
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
   ai:
     model:
       chat: openai
-      embedding: openai
+      embedding: ollama
+      # Every other OpenAI sub-model must be switched off, or its auto-configuration
+      # still demands an OpenAI API key at startup even though it is never used.
+      image: none
+      moderation: none
+      audio:
+        speech: none
+        transcription: none
 
     openai:
-      # Embeddings go to real OpenAI. Groq has no embeddings endpoint.
-      api-key: ${OPENAI_API_KEY}
-      embedding:
-        options:
-          model: text-embedding-3-small
-      # Chat goes to Groq through its OpenAI-compatible API.
+      # Chat goes to Groq through its OpenAI-compatible API. Groq has no embeddings endpoint.
       chat:
         base-url: https://api.groq.com/openai
         api-key: ${GROQ_API_KEY}
@@ -40,11 +61,17 @@ spring:
           model: openai/gpt-oss-120b
           temperature: 0.7
 
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      embedding:
+        options:
+          model: mxbai-embed-large
+
     vectorstore:
       pgvector:
         index-type: HNSW      # makes the similarity search faster
         distance-type: COSINE_DISTANCE
-        dimensions: 1536      # text-embedding-3-small output size
+        dimensions: 1024      # mxbai-embed-large output size
         table-name: docmind_vectors
         schema-name: public
         initialize-schema: true
@@ -64,6 +91,17 @@ app:
     top-k: 7
     similarity-threshold: 0.0
   cors:
-    allowed-origins: "*"
-    allowed-methods: "*"
+    allowed-origins: "http://localhost:5173"
+    allowed-methods: "GET,POST,PUT,DELETE,OPTIONS"
     allowed-headers: "*"
+
+  # Where the verification email links to. Must be the React dev server, not the API.
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+
+  jwt:
+    # HS256 needs at least 32 characters. Generate one with:
+    #   openssl rand -base64 48
+    # Leave it unset and the app generates a random key per run, which signs everybody
+    # out on every restart - fine for a quick test, not for real use.
+    secret: ${JWT_SECRET:}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:1440}

@@ -20,6 +20,13 @@ public class Global_EXE {
                 , 404, java.time.LocalDateTime.now()));
     }
 
+    @ExceptionHandler(Auth_EXE.class)
+    public ResponseEntity<API_Respone> Global_EXE(Auth_EXE e) {
+        return ResponseEntity.status(401).body(new API_Respone(false
+                , e.getMessage()
+                , 401, java.time.LocalDateTime.now()));
+    }
+
     @ExceptionHandler(Document_EXE.class)
     public ResponseEntity<API_Respone> Global_EXE(Document_EXE   e) {
         return ResponseEntity.status(500).body(new API_Respone(false

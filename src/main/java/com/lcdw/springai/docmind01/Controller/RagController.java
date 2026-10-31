@@ -48,9 +48,9 @@ public class RagController {
     @Operation(summary = "Ask a question about your documents",
             description = "Retrieves the matching chunks, then has the LLM answer using them as context.")
     public ResponseEntity<ChatResponseDTO> chat(@Valid @RequestBody ChatRequestDTO request) {
-        ChatResponseDTO response = ragService.chat(request);// later
+        ChatResponseDTO response = ragService.chat(request);
 
-        return ResponseEntity.ok(ragService.chat(request));
+        return ResponseEntity.ok(response);
     }
     @PostMapping("/fluxchat")
     @Operation(summary = "Ask  an get the answer in flux chat",
