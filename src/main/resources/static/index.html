@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17233a">
+  <meta name="description" content="DocMind — a private, evidence-first workspace for your documents.">
+  <title>DocMind · Document intelligence</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/app.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="7.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6z"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="i-flow" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="5" rx="1"/><rect x="2" y="17" width="7" height="5" rx="1"/><rect x="15" y="17" width="7" height="5" rx="1"/><path d="M12 7v5m-7 5v-5h14v5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol>
+    <symbol id="i-exit" viewBox="0 0 24 24"><path d="M9 4H4v16h5m7-13 5 5-5 5M9 12h12"/></symbol>
+  </svg>
+
+  <section id="auth-view" class="auth-page">
+    <div class="auth-story">
+      <a class="brand" href="/"><span class="brand-mark">d<span>m</span></span><span>docmind<span class="brand-dot">.</span></span></a>
+      <div class="auth-story-body">
+        <p class="eyebrow">YOUR KNOWLEDGE, CONNECTED</p>
+        <h1>Less searching.<br>More <span>understanding.</span></h1>
+        <p class="auth-intro">Turn a folder of documents into a conversation worth having. Thoughtful answers. Traceable evidence. Your own private space.</p>
+        <div class="abstract-docs" aria-hidden="true"><div class="paper paper-back"><i></i><i></i><i></i></div><div class="paper paper-front"><span>FROM DOCUMENTS</span><i></i><i></i><i></i><b>to a clearer picture.</b><div class="paper-tag">Semantic + keyword search</div></div></div>
+      </div>
+      <p class="auth-foot"><svg class="icon"><use href="#i-shield"/></svg> Built around your documents. Not the entire internet.</p>
+    </div>
+    <div class="auth-form-wrap">
+      <p class="eyebrow">DOCUMENT INTELLIGENCE / 02</p>
+      <h2 id="auth-title">Welcome back.</h2>
+      <p id="auth-subtitle" class="muted">Sign in to your private research workspace.</p>
+      <form id="auth-form">
+        <div id="username-field" hidden><label for="username">Name</label><input id="username" name="username" autocomplete="username" minlength="3" maxlength="100"></div>
+        <label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" required maxlength="160" placeholder="you@example.com">
+        <label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="At least 8 characters">
+        <p id="auth-message" class="form-message" role="status"></p>
+        <button type="submit" class="button primary full" id="auth-submit">Enter workspace <svg class="icon"><use href="#i-arrow"/></svg></button>
+      </form>
+      <button class="text-button" id="auth-switch">New here? Create an account</button>
+      <button class="text-button subtle" id="resend">Resend verification email</button>
+      <div class="auth-note"><svg class="icon"><use href="#i-shield"/></svg><p>Email verification protects your account. Documents and search results are isolated to your signed-in identity.</p></div>
+    </div>
+  </section>
+
+  <div id="app" class="app-shell" hidden>
+    <aside class="sidebar">
+      <a class="brand" href="#workspace"><span class="brand-mark">d<span>m</span></span><span>docmind<span class="brand-dot">.</span></span></a>
+      <div class="workspace-label"><span class="workspace-avatar">P</span><div><strong>Personal workspace</strong><span>Private by default</span></div><svg class="icon small"><use href="#i-shield"/></svg></div>
+      <p class="nav-label">WORKSPACE</p>
+      <nav aria-label="Main navigation">
+        <a href="#workspace" data-view="workspace"><svg class="icon"><use href="#i-grid"/></svg> Research desk <span class="nav-indicator"></span></a>
+        <a href="#library" data-view="library"><svg class="icon"><use href="#i-doc"/></svg> Document library <span class="count" id="nav-doc-count">0</span></a>
+        <a href="#pipeline" data-view="pipeline"><svg class="icon"><use href="#i-flow"/></svg> How it works</a>
+      </nav>
+      <div class="sidebar-tip"><span class="tiny-label">EVIDENCE FIRST</span><h3>Good answers have a source.</h3><p>Every supported answer points back to a passage in your documents.</p><a href="#pipeline">Explore the pipeline <span aria-hidden="true">→</span></a></div>
+      <div class="account"><span class="account-avatar" id="account-initial">U</span><div><strong id="account-name">Your account</strong><span>Personal workspace</span></div><button class="icon-button" id="logout" aria-label="Sign out" title="Sign out"><svg class="icon"><use href="#i-exit"/></svg></button></div>
+    </aside>
+    <div class="app-body">
+      <header class="topbar"><div><span class="muted">Workspace</span><span class="breadcrumb-slash">/</span><strong id="page-label">Research desk</strong></div><span class="privacy-pill"><svg class="icon small"><use href="#i-shield"/></svg> Owner-isolated</span></header>
+      <main id="main" tabindex="-1">
+        <div id="global-message" class="notice" role="status" hidden></div>
+        <section id="workspace-view" class="page">
+          <div class="page-heading"><div><p class="eyebrow">A LITTLE CLARITY GOES A LONG WAY</p><h1>Your documents.<br><span>A clearer perspective.</span></h1><p class="muted">Ask a better question. Find the evidence that matters.</p></div><button class="button secondary" data-upload><svg class="icon"><use href="#i-plus"/></svg> Add documents</button></div>
+          <div class="research-layout">
+            <div class="research-main">
+              <section class="composer card" aria-labelledby="composer-title">
+                <div class="composer-top"><h2 id="composer-title">What would you like to know?</h2><span class="label-pill">EVIDENCE-LED</span></div>
+                <form id="query-form">
+                  <label for="query" class="sr-only">Your document question</label><textarea id="query" rows="3" maxlength="2000" required placeholder="Ask about a policy, find a specific detail, or connect ideas across your documents…"></textarea>
+                  <div class="composer-controls"><div class="mode-toggle" role="group" aria-label="Response type"><button type="button" data-mode="chat" aria-pressed="true">Ask AI</button><button type="button" data-mode="search" aria-pressed="false"><svg class="icon small"><use href="#i-search"/></svg> Search</button></div><button type="submit" id="ask-button" class="button primary">Find an answer <svg class="icon"><use href="#i-arrow"/></svg></button></div>
+                  <div class="scope-row"><label for="document-scope"><svg class="icon small"><use href="#i-doc"/></svg> Search within</label><select id="document-scope"><option value="">All my documents</option></select></div>
+                  <details class="advanced"><summary>Retrieval settings</summary><div class="settings-grid"><div><label for="retrieval-mode">Search strategy</label><select id="retrieval-mode"><option value="hybrid">Hybrid · semantic + BM25</option><option value="semantic">Semantic only</option><option value="bm25">BM25 only</option></select></div><div><label for="top-k">Maximum sources</label><input id="top-k" type="number" min="1" max="20" value="5" required></div><div><label for="threshold">Semantic threshold</label><input id="threshold" type="number" min="0" max="1" step="0.05" value="0.25" required></div><label class="checkbox-label"><input id="rewrite" type="checkbox" checked> Rewrite query for clarity</label></div><p class="helper">Select one document to reuse verified answers for 15 minutes. All-document queries bypass the cache. BM25 + rewriting off needs no AI model for search.</p></details>
+                </form>
+              </section>
+              <div class="suggestions" id="suggestions"><span>TRY ASKING</span><button data-query="What are the key takeaways from these documents?">Find the key takeaways <span>↗</span></button><button data-query="What deadlines and requirements are mentioned?">Uncover important details <span>↗</span></button></div>
+              <section id="answer-section" class="answer-card card" hidden aria-labelledby="answer-heading"><div class="section-top"><h2 id="answer-heading">Your answer</h2><span id="answer-status" class="label-pill"></span></div><p id="asked-query" class="asked-query"></p><div id="answer-body" class="answer-body" aria-live="polite"></div></section>
+              <section id="sources-section" hidden aria-labelledby="sources-heading"><div class="section-top"><h2 id="sources-heading">Supporting evidence <span id="sources-count" class="count">0</span></h2><span class="muted small-text">From your selected documents</span></div><div id="sources-list"></div></section>
+              <div id="research-empty" class="empty-research"><div class="empty-icon"><svg class="icon"><use href="#i-doc"/></svg></div><h2>There’s a story in your documents.</h2><p>Add a document, ask a question, and let the evidence lead.</p><span>PDF · DOCX · TXT · Markdown</span></div>
+            </div>
+            <aside class="research-aside">
+              <section class="card collection-card"><div class="section-top"><h2>Your collection</h2><svg class="icon muted"><use href="#i-doc"/></svg></div><div class="collection-stat"><strong id="document-count">0</strong><span>documents in your<br>private workspace</span></div><div class="collection-meter" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="collection-meta"><span>Indexed chunks</span><strong id="chunk-count">0</strong></div><a href="#library" class="collection-link">Open document library <span>→</span></a></section>
+              <section class="card pipeline-card"><span class="tiny-label">UNDER THE HOOD</span><h2>Not just a keyword match.</h2><p>Two ways to find it. One focused answer.</p><ol class="mini-pipeline"><li><span>01</span><div><strong>Understand</strong><p>Clarify your search query</p></div></li><li><span>02</span><div><strong>Find</strong><p>Semantic meaning + BM25 terms</p></div></li><li><span>03</span><div><strong>Focus</strong><p>Rerank and compress evidence</p></div></li><li><span>04</span><div><strong>Answer</strong><p>Check sources, or abstain</p></div></li></ol></section>
+              <section id="diagnostics" class="card diagnostics" hidden><h2>Retrieval &amp; token trace</h2><dl id="diagnostic-values"></dl><p id="rewritten-query"></p><div id="trace-warnings" class="helper"></div></section>
+            </aside>
+          </div>
+        </section>
+        <section id="library-view" class="page" hidden><div class="page-heading compact"><div><p class="eyebrow">YOUR PRIVATE KNOWLEDGE BASE</p><h1>Document library<span class="brand-dot">.</span></h1><p class="muted">One place for the knowledge you work with.</p></div><button class="button primary" data-upload><svg class="icon"><use href="#i-upload"/></svg> Upload document</button></div><div class="upload-zone"><svg class="icon"><use href="#i-upload"/></svg><div><h2>Bring your knowledge in.</h2><p>PDF, DOCX, TXT or Markdown · Up to 25 MB per file · Text-based documents</p></div><button class="button secondary" data-upload>Choose a file</button></div><div class="library-toolbar"><label for="library-filter" class="sr-only">Filter documents by filename</label><div class="filter-field"><svg class="icon"><use href="#i-search"/></svg><input id="library-filter" type="search" placeholder="Find a document…"></div><button class="button secondary" id="refresh-documents">Refresh</button></div><div id="library-list" class="document-grid"></div><div id="library-empty" class="empty-research" hidden><h2>No documents yet.</h2><p>Upload your first document to start a grounded conversation.</p></div></section>
+        <section id="pipeline-view" class="page" hidden><div class="page-heading compact"><div><p class="eyebrow">THOUGHTFUL BY DESIGN</p><h1>From question<br>to evidence<span class="brand-dot">.</span></h1><p class="muted">A closer look at the decisions behind your answer.</p></div><span class="privacy-pill"><svg class="icon small"><use href="#i-shield"/></svg> Scoped before search</span></div><div class="explain-grid"><article class="card explain-card"><span class="step-number">01 / RETRIEVAL</span><h2>Meaning meets precision.</h2><p>Pinecone semantic search recognizes similar ideas. BM25 uses a separate text index to find exact terms, names and identifiers. Reciprocal rank fusion brings both result lists together without mixing incompatible scores.</p></article><article class="card explain-card"><span class="step-number">02 / QUERY REWRITING</span><h2>A clearer question.</h2><p>An optional AI pass clarifies wording and corrects typos. We search both your original question and its rewrite, so the original intent stays part of retrieval.</p></article><article class="card explain-card"><span class="step-number">03 / POST-RETRIEVAL</span><h2>Less noise. More signal.</h2><p>A deterministic relevance reranker combines semantic similarity, BM25 and term coverage. Extractive compression and duplicate removal keep evidence within character and estimated token budgets. Completion limits cap answer generation.</p></article><article class="card explain-card"><span class="step-number">04 / ISOLATION</span><h2>Your space stays yours.</h2><p>Document ownership comes from your authenticated account, never a user ID in a request. Listing, deletion and both search branches enforce the same ownership boundary.</p></article><article class="card explain-card"><span class="step-number">05 / GUARDRAILS</span><h2>Evidence, not guesswork.</h2><p>Known instruction-injection and credential patterns are filtered. Answers must cite supplied source IDs or abstain. These checks reduce risk; they do not prove that every generated claim is true.</p></article><article class="card explain-card"><span class="step-number">06 / EVALUATION</span><h2>Measure before you trust.</h2><p>Regression tests cover ranking, compression, isolation and guardrails. The live evaluation runner measures Recall@K, Precision@K, MRR, nDCG, citation validity and reference-answer token F1.</p><code>mvn test</code><p class="helper">See RAG_UPGRADES.md and evals/run_eval.py in the project for reproducible evaluation. No quality score is claimed without a run.</p></article></div></section>
+      </main>
+      <footer class="app-footer"><span>DocMind / Document intelligence</span><span>Check the source. Keep your perspective.</span></footer>
+    </div>
+  </div>
+  <input type="file" id="upload-input" accept=".pdf,.docx,.txt,.md" hidden>
+  <dialog id="delete-dialog"><form method="dialog"><span class="tiny-label">DOCUMENT LIBRARY</span><h2>Delete this document?</h2><p id="delete-description"></p><p class="muted">Its indexed passages will also be removed. This cannot be undone.</p><div class="dialog-actions"><button class="button secondary" value="cancel">Keep document</button><button class="button danger" value="delete">Delete document</button></div></form></dialog>
+</body>
+</html>

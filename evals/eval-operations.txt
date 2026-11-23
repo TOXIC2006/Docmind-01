@@ -1,0 +1,2 @@
+Operations handbook
+Gateway error ERR_502A means the upstream TLS certificate has expired. Renew the upstream TLS certificate and restart the gateway. The support queue is monitored on business days. A certificate renewal does not change customer refund eligibility.

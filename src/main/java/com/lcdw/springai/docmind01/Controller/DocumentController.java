@@ -33,7 +33,7 @@ public class DocumentController {
     @PostMapping(value = "/upload_document",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload a document",
-            description = "Parses the uploaded file, chunks it and indexes the chunks into the pgvector store")
+            description = "Parses the uploaded file, chunks it and indexes the chunks into the Pinecone store")
     public ResponseEntity<DocumentDto> uploadDocument(@RequestParam("file") MultipartFile file) {
         DocumentDto documentDto = documentService.uploadDocument(file);
         return ResponseEntity.status(HttpStatus.CREATED).body(documentDto);
@@ -63,7 +63,7 @@ public class DocumentController {
 
     @DeleteMapping("/documents/{id}")
     @Operation(summary = "Delete a document",
-            description = "Deletes the document metadata and all of its vectors from the pgvector store")
+            description = "Deletes the document metadata and all of its vectors from the Pinecone store")
     public ResponseEntity<API_Respone> deleteDocument(@PathVariable("id") String id) {
         documentService.deleteDocument(id);
         return ResponseEntity.ok(new API_Respone(

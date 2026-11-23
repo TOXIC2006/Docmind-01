@@ -19,6 +19,9 @@ public class DocumentMetadata {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(updatable = false)
+    private String ownerId;
+
     @Column(unique = false)
     private String filename;
 
@@ -30,6 +33,8 @@ public class DocumentMetadata {
 
     private Integer totalPages;
     private Integer totalChunks;
+
+    private String vectorRevision;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)

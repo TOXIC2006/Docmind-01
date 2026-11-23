@@ -30,8 +30,8 @@ public class RagController {
     private final RagService ragService;
 
     @PostMapping("/search")
-    @Operation(summary = "Search the vector store",
-            description = "Returns the matching chunks and their citations. Does not call the LLM.")
+    @Operation(summary = "Search your documents with semantic + BM25 retrieval",
+            description = "Owner-scoped hybrid retrieval, optional query rewriting, reranking and context compression. Set rewriteQuery=false to avoid chat-model calls.")
     public ResponseEntity<Map<String, Object>> search(@Valid @RequestBody SearcRequestDTO request) {
         SearchanswerDTO response = ragService.searchanswer(request);
         Map<String, Object> map = Map.of(

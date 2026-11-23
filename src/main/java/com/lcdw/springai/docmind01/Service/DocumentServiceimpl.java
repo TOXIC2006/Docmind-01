@@ -6,11 +6,10 @@ import com.lcdw.springai.docmind01.Entity.Document_Status;
 import com.lcdw.springai.docmind01.Execption.Document_EXE;
 import com.lcdw.springai.docmind01.Execption.ResourceNotFound_EXE;
 import com.lcdw.springai.docmind01.Repo.DocumnetMetadatarepo;
+import com.lcdw.springai.docmind01.Service.Security.CurrentUser;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,7 +24,10 @@ public class DocumentServiceimpl implements DocumentService {
    private DocumnetMetadatarepo documnetMetadatarepo;
 
    @Autowired
-   private JdbcTemplate jdbcTemplate;
+   private com.lcdw.springai.docmind01.Repo.ScopedChunkRepository chunkRepository;
+
+   @Autowired
+   private DocumentSemanticCache semanticCache;
 
    @Autowired
     private ParseService parseService;
@@ -39,6 +41,17 @@ public class DocumentServiceimpl implements DocumentService {
 
     @Override
     public DocumentDto   uploadDocument(MultipartFile file) {
+        String ownerId = CurrentUser.get().getId();
+        if (file.isEmpty() || file.getSize() > 25L * 1024 * 1024) {
+            throw new IllegalArgumentException("Upload a non-empty file no larger than 25MB.");
+        }
+        String original = file.getOriginalFilename();
+        if (original == null || !original.toLowerCase(java.util.Locale.ROOT).matches(".*\\.(pdf|docx|txt|md)$")) {
+            throw new IllegalArgumentException("Supported files: PDF, DOCX, TXT and Markdown.");
+        }
+        if (original.length() > 200 || original.contains("/") || original.contains("\\") || original.chars().anyMatch(Character::isISOControl)) {
+            throw new IllegalArgumentException("Use a filename of at most 200 characters without path separators.");
+        }
         String fileName = file.getOriginalFilename() != null
                 ? file.getOriginalFilename()
                 : "document";
@@ -49,6 +62,7 @@ public class DocumentServiceimpl implements DocumentService {
 
 // Document metadata create
         DocumentMetadata documentMetadata = DocumentMetadata.builder()
+                .ownerId(ownerId)
                 .filename(fileName)
                 .fileSize(file.getSize())
                 .contentType(contentType)
@@ -89,17 +103,13 @@ public class DocumentServiceimpl implements DocumentService {
         List<DocumentDto> results = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            if (file.isEmpty()) {
-                continue;
-            }
-
             String fileName = file.getOriginalFilename() != null
                     ? file.getOriginalFilename()
                     : "document";
 
             try {
                 results.add(uploadDocument(file));
-            } catch (Document_EXE e) {
+            } catch (Document_EXE | IllegalArgumentException e) {
                 results.add(DocumentDto.builder()
                         .fileName(fileName)
                         .fileSize(file.getSize())
@@ -115,7 +125,7 @@ public class DocumentServiceimpl implements DocumentService {
 
     @Override
     public List<DocumentDto> listDocuments() {
-        return documnetMetadatarepo.findAll()
+        return documnetMetadatarepo.findByOwnerIdOrderByCreatedAtDesc(CurrentUser.get().getId())
                 .stream()
                 .map(this::toDto)
                 .toList();
@@ -123,7 +133,7 @@ public class DocumentServiceimpl implements DocumentService {
 
     @Override
     public DocumentDto getDocument(String id) {
-        DocumentMetadata metadata = documnetMetadatarepo.findById(id)
+        DocumentMetadata metadata = documnetMetadatarepo.findByIdAndOwnerId(id, CurrentUser.get().getId())
                 .orElseThrow(() -> new ResourceNotFound_EXE("Document not found with id: " + id));
 
         return toDto(metadata);
@@ -131,15 +141,18 @@ public class DocumentServiceimpl implements DocumentService {
 
     @Override
     public void deleteDocument(String id) {
-        DocumentMetadata metadata = documnetMetadatarepo.findById(id)
+        DocumentMetadata metadata = documnetMetadatarepo.findByIdAndOwnerId(id, CurrentUser.get().getId())
                 .orElseThrow(() -> new ResourceNotFound_EXE("Document not found with id: " + id));
 
-        // vectors first, otherwise /search would keep returning chunks of a deleted document
-        vectorStore.delete(new FilterExpressionBuilder()
-                .eq("documentId", id)
-                .build());
+        // Pinecone 1.0 filter deletion uses a capped similarity query; delete the owned IDs instead.
+        List<String> ids = chunkRepository.ids(metadata.getOwnerId(), id);
+        for (int offset = 0; offset < ids.size(); offset += 1000) {
+            vectorStore.delete(ids.subList(offset, Math.min(offset + 1000, ids.size())));
+        }
 
+        chunkRepository.delete(metadata.getOwnerId(), id);
         documnetMetadatarepo.delete(metadata);
+        semanticCache.evictDocument(metadata.getOwnerId(), id);
     }
 
     private DocumentDto toDto(DocumentMetadata metadata) {

@@ -57,13 +57,26 @@ public class Global_EXE {
                  , e.getMessage()+ "validation failed"
                  , 400, java.time.LocalDateTime.now()));
      }
+    @ExceptionHandler({IllegalArgumentException.class, org.springframework.http.converter.HttpMessageNotReadableException.class})
+    public ResponseEntity<API_Respone> invalidRequest(Exception e) {
+        String message = e instanceof IllegalArgumentException ? e.getMessage() : "Invalid JSON request.";
+        return ResponseEntity.badRequest().body(new API_Respone(false, message, 400, java.time.LocalDateTime.now()));
+    }
+
+    @ExceptionHandler({org.springframework.dao.DataAccessException.class, org.springframework.web.client.RestClientException.class,
+            org.springframework.ai.retry.NonTransientAiException.class, org.springframework.ai.retry.TransientAiException.class})
+    public ResponseEntity<API_Respone> unavailable(Exception e) {
+        return ResponseEntity.status(503).body(new API_Respone(false,
+                "A database or AI service is unavailable. Check the backend services and retry.", 503, java.time.LocalDateTime.now()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> Global_EXE(Exception e) {
 
         Map<String, Object> map = new HashMap<>();
 
         map.put("success", false);
-        map.put("message", e.getMessage());
+        map.put("message", "The request could not be completed. Check the server logs and retry.");
         map.put("status", 500);
         map.put("timestamp", java.time.LocalDateTime.now());
 

@@ -11,6 +11,11 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 public class CitationDto {
+    private String citationId;
+    private String chunkId;
+    private Double bm25Score;
+    private Double fusionScore;
+    private Double rerankScore;
     private String documentId;
     private String fileName;
     private Integer chunkIndex;

@@ -14,5 +14,6 @@ public class SearchanswerDTO {
 
      private  String  query;
      private  int totalmatches;
-     List<CitationDto> matches;
+     private List<CitationDto> matches;
+     private RetrievalDiagnostics diagnostics;
 }

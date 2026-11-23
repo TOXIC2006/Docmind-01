@@ -9,7 +9,6 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ import java.util.Map;
 public class IngestionService {
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private com.lcdw.springai.docmind01.Repo.ScopedChunkRepository chunkRepository;
     @Autowired
     private DocumnetMetadatarepo documnetMetadatarepo;
 
@@ -50,18 +49,20 @@ public class IngestionService {
                     documentMetadata.setStatus(Document_Status.failed);
                     documentMetadata.setErrorMessage("No chunks created from the document.");
                     documnetMetadatarepo.save(documentMetadata);
-                    return 0;
+                    throw new Document_EXE("No readable text was found. Scanned PDFs need OCR before upload.");
                 }
 
              List<Document> enrichedChunks = new ArrayList<>();
+             String revision = java.util.UUID.randomUUID().toString();
 
              for (int i = 0; i < chunks.size(); i++) {
                  Document chunk = chunks.get(i);
 
-                 Map<String, Object> enrichedMetadata =
-                         new HashMap<>(chunk.getMetadata());
+                 Map<String, Object> enrichedMetadata = new HashMap<>();
+                 enrichedMetadata.put("vectorRevision", revision);
 
-                 enrichedMetadata.put("documentId", documentMetadata.getId().toString());
+                 enrichedMetadata.put("documentId", documentMetadata.getId());
+                 enrichedMetadata.put("ownerId", java.util.Objects.requireNonNull(documentMetadata.getOwnerId()));
                  enrichedMetadata.put("fileName", documentMetadata.getFilename());
                  enrichedMetadata.put("contentType", documentMetadata.getContentType());
                  enrichedMetadata.put("chunkIndex", i);
@@ -85,9 +86,12 @@ public class IngestionService {
                  enrichedChunks.add(enrichedDoc);
              }
 
-             vectorStore.add(enrichedChunks);
+             chunkRepository.replace(documentMetadata.getOwnerId(), documentMetadata.getId(), revision, enrichedChunks);
+             for (int offset = 0; offset < enrichedChunks.size(); offset += 100) {
+                 vectorStore.add(enrichedChunks.subList(offset, Math.min(offset + 100, enrichedChunks.size())));
+             }
 
-             // 4. Update document status to indexed
+             documentMetadata.setVectorRevision(revision);
              documentMetadata.setStatus(Document_Status.indexed);
              documentMetadata.setTotalChunks(enrichedChunks.size());
              documentMetadata.setErrorMessage(null);
@@ -95,11 +99,13 @@ public class IngestionService {
              documnetMetadatarepo.save(documentMetadata);
 
              return enrichedChunks.size();
+         } catch (Document_EXE e) {
+             throw e;
          } catch (Exception e) {
              documentMetadata.setStatus(Document_Status.failed);
-             documentMetadata.setErrorMessage("Error ingesting documents: try again " + e.getMessage());
+             documentMetadata.setErrorMessage("Indexing failed. Check the embedding and database services, then upload again.");
              documnetMetadatarepo.save(documentMetadata);
-             throw new Document_EXE("Error ingesting documents: " + e.getMessage(), e);
+             throw new Document_EXE("Indexing failed. Check the embedding and database services, then upload again.", e);
          }
     }
 }

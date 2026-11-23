@@ -30,7 +30,7 @@ public class EmailService {
     @Value("${spring.mail.properties.mail.smtp.from:${spring.mail.username:}}")
     private String fromAddress;
 
-    @Value("${app.frontend-url:http://localhost:5173}")
+    @Value("${app.frontend-url:http://localhost:8081}")
     private String frontendUrl;
 
     public EmailService(ObjectProvider<JavaMailSender> mailSenderProvider) {
@@ -90,7 +90,15 @@ public class EmailService {
         } catch (MessagingException e) {
             throw new Auth_EXE("Could not build the verification email: " + e.getMessage(), e);
         } catch (MailException e) {
-            throw new Auth_EXE("The SMTP server refused the verification email: " + e.getMessage(), e);
+            String detail = String.valueOf(e.getMessage()).toLowerCase(java.util.Locale.ROOT);
+            if (detail.contains("unauthorized ip address")) {
+                throw new Auth_EXE("Email delivery is blocked by the SMTP provider's IP allowlist. "
+                        + "Authorize this server's outgoing IP in Brevo, then try again.", e);
+            }
+            if (e instanceof org.springframework.mail.MailAuthenticationException) {
+                throw new Auth_EXE("SMTP authentication failed. Check the configured SMTP login and key.", e);
+            }
+            throw new Auth_EXE("The verification email could not be delivered. Check the SMTP service and sender settings.", e);
         }
     }
 

@@ -6,3 +6,25 @@ spring:
         name: MyApplication - Docmind
     profiles:
         active: dev
+    servlet:
+        multipart:
+            max-file-size: 25MB
+            max-request-size: 60MB
+
+app:
+    rag:
+        candidate-k: 30
+        max-corpus-chunks: 10000
+        context-max-chars: 6000
+        passage-max-chars: 1600
+        bm25-k1: 1.5
+        bm25-b: 0.75
+    cache:
+        max-entries: 256
+        ttl-seconds: 900
+        similarity-threshold: 0.98
+    tokens:
+        max-prompt-tokens: 3000
+        max-completion-tokens: 4096
+        max-rewrite-tokens: 512
+        safety-margin-tokens: 128

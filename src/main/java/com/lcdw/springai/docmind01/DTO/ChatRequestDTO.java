@@ -11,10 +11,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ChatRequestDTO {
-    @NotEmpty(message = "Query must not be empty")
+    @jakarta.validation.constraints.NotBlank(message = "Query must not be blank")
+    @jakarta.validation.constraints.Size(max = 2000, message = "Query must be at most 2000 characters")
     private String query;
     private  String documentId;
-    private  Integer topK;
-    private  Double  similarityThreshold;
+    @jakarta.validation.constraints.Min(1)
+    @jakarta.validation.constraints.Max(20)
+    private Integer topK;
+    @jakarta.validation.constraints.DecimalMin("0.0")
+    @jakarta.validation.constraints.DecimalMax("1.0")
+    private Double similarityThreshold;
+    private Boolean rewriteQuery;
+    private String retrievalMode;
 
 }

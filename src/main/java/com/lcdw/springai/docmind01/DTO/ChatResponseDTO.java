@@ -16,5 +16,10 @@ public class ChatResponseDTO {
     private  String  query;
     private  String  answer;
     private  int totalmatches;
-    private  List<CitationDto> matches;
+    private List<CitationDto> matches;
+    private RetrievalDiagnostics diagnostics;
+    private boolean grounded;
+    private boolean abstained;
+    private CacheDiagnostics cache;
+    private TokenUsage tokenUsage;
 }

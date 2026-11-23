@@ -37,3 +37,8 @@ src/main/resources/application-dev.yml
 .env
 *.env
 !*.env.example
+
+__pycache__/
+*.pyc
+docmind-01/
+
